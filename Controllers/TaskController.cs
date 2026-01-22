@@ -190,7 +190,7 @@ namespace TaskTrackerApi.Controllers
                 if (existingTask == null)
                 {
                     _logger.LogWarning("Task with ID {TaskId} not found for update", id);
-                    return NotFound();
+                    return NotFound("Task was not found");
                 }
 
                 // Validate title

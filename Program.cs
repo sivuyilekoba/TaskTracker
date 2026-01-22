@@ -10,12 +10,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
-        // Serialize enums as strings for better API readability
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-        // Use camelCase for JSON properties
         options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
     });
-
 // Configure EF Core with InMemory database
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseInMemoryDatabase("TaskTrackerDb"));
@@ -31,10 +28,9 @@ builder.Services.AddCors(options =>
     });
 });
 
-// Configure API behavior options
+// Configure API behavior options for validation
 builder.Services.Configure<ApiBehaviorOptions>(options =>
 {
-    // Customize validation error responses to use ProblemDetails
     options.InvalidModelStateResponseFactory = context =>
     {
         var problemDetails = new ValidationProblemDetails(context.ModelState)
@@ -59,18 +55,9 @@ builder.Services.AddSwaggerGen(options =>
     options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
     {
         Title = "Task Tracker API",
-        Version = "v1",
+        Version = "v1",     
         Description = "A RESTful API for managing tasks with filtering and sorting capabilities"
     });
-});
-
-// Add HTTP logging
-builder.Services.AddHttpLogging(logging =>
-{
-    logging.LoggingFields = Microsoft.AspNetCore.HttpLogging.HttpLoggingFields.RequestPath |
-                           Microsoft.AspNetCore.HttpLogging.HttpLoggingFields.RequestMethod |
-                           Microsoft.AspNetCore.HttpLogging.HttpLoggingFields.ResponseStatusCode |
-                           Microsoft.AspNetCore.HttpLogging.HttpLoggingFields.Duration;
 });
 
 var app = builder.Build();
@@ -79,7 +66,6 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    // EnsureCreated will create the InMemory database and apply seed data
     context.Database.EnsureCreated();
 }
 
@@ -91,41 +77,37 @@ if (app.Environment.IsDevelopment())
 }
 
 // Global exception handler - RFC 7807 ProblemDetails
-//app.UseExceptionHandler(exceptionHandlerApp =>
-//{
-//    exceptionHandlerApp.Run(async context =>
-//    {
-//        context.Response.ContentType = "application/problem+json";
+app.UseExceptionHandler(exceptionHandlerApp =>
+{
+    exceptionHandlerApp.Run(async context =>
+    {
+        context.Response.ContentType = "application/problem+json";
 
-//        var exceptionHandlerFeature = context.Features.Get<IExceptionHandlerFeature>();
-//        var exception = exceptionHandlerFeature?.Error;
+        var exceptionHandlerFeature = context.Features.Get<IExceptionHandlerFeature>();
+        var exception = exceptionHandlerFeature?.Error;
 
-//        var problemDetails = new ProblemDetails
-//        {
-//            Type = "https://tools.ietf.org/html/rfc7807",
-//            Title = "An error occurred while processing your request.",
-//            Status = StatusCodes.Status500InternalServerError,
-//            Instance = context.Request.Path,
-//            Detail = app.Environment.IsDevelopment() ? exception?.Message : "An internal server error occurred."
-//        };
+        var problemDetails = new ProblemDetails
+        {
+            Type = "https://tools.ietf.org/html/rfc7807",
+            Title = "An error occurred while processing your request.",
+            Status = StatusCodes.Status500InternalServerError,
+            Instance = context.Request.Path,
+            Detail = app.Environment.IsDevelopment() ? exception?.Message : "An internal server error occurred."
+        };
 
-//        if (app.Environment.IsDevelopment() && exception != null)
-//        {
-//            problemDetails.Extensions["exception"] = exception.GetType().Name;
-//            problemDetails.Extensions["stackTrace"] = exception.StackTrace;
-//        }
+        if (app.Environment.IsDevelopment() && exception != null)
+        {
+            problemDetails.Extensions["exception"] = exception.GetType().Name;
+            problemDetails.Extensions["stackTrace"] = exception.StackTrace;
+        }
 
-//        context.Response.StatusCode = problemDetails.Status.Value;
-//        await context.Response.WriteAsJsonAsync(problemDetails);
-//    });
-//});
-
-//// Enable HTTP logging
-app.UseHttpLogging();
+        context.Response.StatusCode = problemDetails.Status.Value;
+        await context.Response.WriteAsJsonAsync(problemDetails);
+    });
+});
 
 app.UseHttpsRedirection();
 
-// Enable CORS
 app.UseCors("AllowLocalSPA");
 
 app.UseAuthorization();

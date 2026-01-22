@@ -67,7 +67,7 @@ namespace TaskTrackerApi.Services
                 _context.Tasks.Add(task);
                 await _context.SaveChangesAsync();
 
-                _logger.LogInformation("Task created successfully with ID {TaskId}", task.Id);
+                _logger.LogInformation("Task created successfully");
 
                 taskDto.Id = task.Id;
                 taskDto.CreatedAt = task.CreatedAt;
