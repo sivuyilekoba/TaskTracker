@@ -190,7 +190,7 @@ namespace TaskTrackerApi.Controllers
                 if (existingTask == null)
                 {
                     _logger.LogWarning("Task with ID {TaskId} not found for update", id);
-                    return NotFound(400);
+                    return NotFound();
                 }
 
                 // Validate title
@@ -245,6 +245,31 @@ namespace TaskTrackerApi.Controllers
             {
                 _logger.LogError(ex, "Error occurred while updating task with ID {TaskId}", id);
                 return StatusCode(500,ex.Message);
+            }
+        }
+
+        [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        public async Task<bool> DeleteTask(int id)
+        {
+            try
+            {
+                var existingTask = await _context.Tasks.FindAsync(id);
+                if (existingTask == null)
+                {
+                    _logger.LogWarning("Task with ID {TaskId} not found for deletion", id);
+                    return false;
+                }
+                _context.Tasks.Remove(existingTask);
+                await _context.SaveChangesAsync();
+                _logger.LogInformation("Deleted task with ID {TaskId}", id);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while deleting task with ID {TaskId}", id);
+                throw;
             }
         }
 
