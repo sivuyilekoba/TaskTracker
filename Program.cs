@@ -37,7 +37,7 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
     // Customize validation error responses to use ProblemDetails
     options.InvalidModelStateResponseFactory = context =>
     {
-        var problemDetails = new ValidationProblemDetails(context.ModelState)   
+        var problemDetails = new ValidationProblemDetails(context.ModelState)
         {
             Type = "https://tools.ietf.org/html/rfc7807",
             Title = "One or more validation errors occurred.",
@@ -87,44 +87,40 @@ using (var scope = app.Services.CreateScope())
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI(options =>
-    {
-        options.SwaggerEndpoint("/swagger/v1/swagger.json", "Task Tracker API v1");
-        options.RoutePrefix = string.Empty; // Set Swagger UI at app root
-    });
+    app.UseSwaggerUI();
 }
 
 // Global exception handler - RFC 7807 ProblemDetails
-app.UseExceptionHandler(exceptionHandlerApp =>
-{
-    exceptionHandlerApp.Run(async context =>
-    {
-        context.Response.ContentType = "application/problem+json";
+//app.UseExceptionHandler(exceptionHandlerApp =>
+//{
+//    exceptionHandlerApp.Run(async context =>
+//    {
+//        context.Response.ContentType = "application/problem+json";
 
-        var exceptionHandlerFeature = context.Features.Get<IExceptionHandlerFeature>();
-        var exception = exceptionHandlerFeature?.Error;
+//        var exceptionHandlerFeature = context.Features.Get<IExceptionHandlerFeature>();
+//        var exception = exceptionHandlerFeature?.Error;
 
-        var problemDetails = new ProblemDetails
-        {
-            Type = "https://tools.ietf.org/html/rfc7807",
-            Title = "An error occurred while processing your request.",
-            Status = StatusCodes.Status500InternalServerError,
-            Instance = context.Request.Path,
-            Detail = app.Environment.IsDevelopment() ? exception?.Message : "An internal server error occurred."
-        };
+//        var problemDetails = new ProblemDetails
+//        {
+//            Type = "https://tools.ietf.org/html/rfc7807",
+//            Title = "An error occurred while processing your request.",
+//            Status = StatusCodes.Status500InternalServerError,
+//            Instance = context.Request.Path,
+//            Detail = app.Environment.IsDevelopment() ? exception?.Message : "An internal server error occurred."
+//        };
 
-        if (app.Environment.IsDevelopment() && exception != null)
-        {
-            problemDetails.Extensions["exception"] = exception.GetType().Name;
-            problemDetails.Extensions["stackTrace"] = exception.StackTrace;
-        }
+//        if (app.Environment.IsDevelopment() && exception != null)
+//        {
+//            problemDetails.Extensions["exception"] = exception.GetType().Name;
+//            problemDetails.Extensions["stackTrace"] = exception.StackTrace;
+//        }
 
-        context.Response.StatusCode = problemDetails.Status.Value;
-        await context.Response.WriteAsJsonAsync(problemDetails);
-    });
-});
+//        context.Response.StatusCode = problemDetails.Status.Value;
+//        await context.Response.WriteAsJsonAsync(problemDetails);
+//    });
+//});
 
-// Enable HTTP logging
+//// Enable HTTP logging
 app.UseHttpLogging();
 
 app.UseHttpsRedirection();
