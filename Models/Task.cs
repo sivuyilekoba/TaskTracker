@@ -30,7 +30,7 @@ namespace TaskTrackerApi.Models
         public TaskStatus Status { get; set; } = TaskStatus.New;
 
         [Required]
-        public TaskPriority Priority { get; set; } = TaskPriority.Medium;
+        public TaskPriority Priority { get; set; } = TaskPriority.Low;
 
         public DateTime? DueDate { get; set; }
 
