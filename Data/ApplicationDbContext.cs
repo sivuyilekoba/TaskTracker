@@ -43,7 +43,9 @@ namespace TaskTrackerApi.Data
                     .IsRequired(false);
             });
 
-            // Seed initial data
+            // Seed initial data with fixed dates
+            var seedDate = new DateTime(2026, 1, 22, 12, 0, 0, DateTimeKind.Utc);
+
             modelBuilder.Entity<TaskTrackerApi.Models.Task>().HasData(
                 new TaskTrackerApi.Models.Task
                 {
@@ -52,8 +54,8 @@ namespace TaskTrackerApi.Data
                     Description = "Initialize ASP.NET Core project with EF Core",
                     Status = TaskTrackerApi.Models.TaskStatus.Done,
                     Priority = TaskPriority.High,
-                    CreatedAt = DateTime.UtcNow.AddDays(-5),
-                    DueDate = DateTime.UtcNow.AddDays(-2)
+                    CreatedAt = seedDate.AddDays(-5),
+                    DueDate = seedDate.AddDays(-2)
                 },
                 new TaskTrackerApi.Models.Task
                 {
@@ -62,8 +64,8 @@ namespace TaskTrackerApi.Data
                     Description = "Add JWT authentication to the API",
                     Status = TaskTrackerApi.Models.TaskStatus.InProgress,
                     Priority = TaskPriority.High,
-                    CreatedAt = DateTime.UtcNow.AddDays(-3),
-                    DueDate = DateTime.UtcNow.AddDays(2)
+                    CreatedAt = seedDate.AddDays(-3),
+                    DueDate = seedDate.AddDays(2)
                 },
                 new TaskTrackerApi.Models.Task
                 {
@@ -72,8 +74,8 @@ namespace TaskTrackerApi.Data
                     Description = "Build React components for task management",
                     Status = TaskTrackerApi.Models.TaskStatus.New,
                     Priority = TaskPriority.Medium,
-                    CreatedAt = DateTime.UtcNow.AddDays(-1),
-                    DueDate = DateTime.UtcNow.AddDays(7)
+                    CreatedAt = seedDate.AddDays(-1),
+                    DueDate = seedDate.AddDays(7)
                 },
                 new TaskTrackerApi.Models.Task
                 {
@@ -82,8 +84,18 @@ namespace TaskTrackerApi.Data
                     Description = "Add comprehensive test coverage for API endpoints",
                     Status = TaskTrackerApi.Models.TaskStatus.New,
                     Priority = TaskPriority.Low,
-                    CreatedAt = DateTime.UtcNow,
+                    CreatedAt = seedDate,
                     DueDate = null
+                },
+                new TaskTrackerApi.Models.Task
+                {
+                    Id = 5,
+                    Title = "Optimize database queries",
+                    Description = "Review and optimize slow database queries for better performance",
+                    Status = TaskTrackerApi.Models.TaskStatus.New,
+                    Priority = TaskPriority.Medium,
+                    CreatedAt = seedDate.AddDays(1),
+                    DueDate = seedDate.AddDays(10)
                 }
             );
         }
