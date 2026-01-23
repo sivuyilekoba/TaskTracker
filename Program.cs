@@ -7,12 +7,12 @@ using System.Text.Json.Serialization;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllers()
-    .AddJsonOptions(options =>
-    {
-        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-        options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
-    });
+builder.Services.AddControllers();
+    //.AddJsonOptions(options =>
+    //{
+    //    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    //    options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+    //});
 // Configure EF Core with InMemory database
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseInMemoryDatabase("TaskTrackerDb"));
@@ -29,24 +29,24 @@ builder.Services.AddCors(options =>
 });
 
 // Configure API behavior options for validation
-builder.Services.Configure<ApiBehaviorOptions>(options =>
-{
-    options.InvalidModelStateResponseFactory = context =>
-    {
-        var problemDetails = new ValidationProblemDetails(context.ModelState)
-        {
-            Type = "https://tools.ietf.org/html/rfc7807",
-            Title = "One or more validation errors occurred.",
-            Status = StatusCodes.Status400BadRequest,
-            Instance = context.HttpContext.Request.Path
-        };
+//builder.Services.Configure<ApiBehaviorOptions>(options =>
+//{
+//    options.InvalidModelStateResponseFactory = context =>
+//    {
+//        var problemDetails = new ValidationProblemDetails(context.ModelState)
+//        {
+//            Type = "https://tools.ietf.org/html/rfc7807",
+//            Title = "One or more validation errors occurred.",
+//            Status = StatusCodes.Status400BadRequest,
+//            Instance = context.HttpContext.Request.Path
+//        };
 
-        return new BadRequestObjectResult(problemDetails)
-        {
-            ContentTypes = { "application/problem+json" }
-        };
-    };
-});
+//        return new BadRequestObjectResult(problemDetails)
+//        {
+//            ContentTypes = { "application/problem+json" }
+//        };
+//    };
+//});
 
 // Configure Swagger/OpenAPI
 builder.Services.AddEndpointsApiExplorer();
@@ -77,34 +77,34 @@ if (app.Environment.IsDevelopment())
 }
 
 // Global exception handler - RFC 7807 ProblemDetails
-app.UseExceptionHandler(exceptionHandlerApp =>
-{
-    exceptionHandlerApp.Run(async context =>
-    {
-        context.Response.ContentType = "application/problem+json";
+//app.UseExceptionHandler(exceptionHandlerApp =>
+//{
+//    exceptionHandlerApp.Run(async context =>
+//    {
+//        context.Response.ContentType = "application/problem+json";
 
-        var exceptionHandlerFeature = context.Features.Get<IExceptionHandlerFeature>();
-        var exception = exceptionHandlerFeature?.Error;
+//        var exceptionHandlerFeature = context.Features.Get<IExceptionHandlerFeature>();
+//        var exception = exceptionHandlerFeature?.Error;
 
-        var problemDetails = new ProblemDetails
-        {
-            Type = "https://tools.ietf.org/html/rfc7807",
-            Title = "An error occurred while processing your request.",
-            Status = StatusCodes.Status500InternalServerError,
-            Instance = context.Request.Path,
-            Detail = app.Environment.IsDevelopment() ? exception?.Message : "An internal server error occurred."
-        };
+//        var problemDetails = new ProblemDetails
+//        {
+//            Type = "https://tools.ietf.org/html/rfc7807",
+//            Title = "An error occurred while processing your request.",
+//            Status = StatusCodes.Status500InternalServerError,
+//            Instance = context.Request.Path,
+//            Detail = app.Environment.IsDevelopment() ? exception?.Message : "An internal server error occurred."
+//        };
 
-        if (app.Environment.IsDevelopment() && exception != null)
-        {
-            problemDetails.Extensions["exception"] = exception.GetType().Name;
-            problemDetails.Extensions["stackTrace"] = exception.StackTrace;
-        }
+//        if (app.Environment.IsDevelopment() && exception != null)
+//        {
+//            problemDetails.Extensions["exception"] = exception.GetType().Name;
+//            problemDetails.Extensions["stackTrace"] = exception.StackTrace;
+//        }
 
-        context.Response.StatusCode = problemDetails.Status.Value;
-        await context.Response.WriteAsJsonAsync(problemDetails);
-    });
-});
+//        context.Response.StatusCode = problemDetails.Status.Value;
+//        await context.Response.WriteAsJsonAsync(problemDetails);
+//    });
+//});
 
 app.UseHttpsRedirection();
 

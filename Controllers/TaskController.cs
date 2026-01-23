@@ -73,8 +73,6 @@ namespace TaskTrackerApi.Controllers
 
        
         [HttpGet("{id}")]
-        [ProducesResponseType(typeof(TaskResponseDto), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<ActionResult<TaskResponseDto>> GetTaskById(int id)
         {
             try
@@ -112,8 +110,6 @@ namespace TaskTrackerApi.Controllers
 
         
         [HttpPost]
-        [ProducesResponseType(typeof(TaskResponseDto), StatusCodes.Status201Created)]
-        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<TaskResponseDto>> CreateTask([FromBody] CreateTaskDto taskDto)
         {
             try
@@ -178,9 +174,6 @@ namespace TaskTrackerApi.Controllers
 
        
         [HttpPut("{id}")]
-        [ProducesResponseType(typeof(TaskResponseDto), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<TaskResponseDto>> UpdateTask(int id, [FromBody] UpdateTaskDto taskDto)
         {
             try
@@ -190,7 +183,7 @@ namespace TaskTrackerApi.Controllers
                 if (existingTask == null)
                 {
                     _logger.LogWarning("Task with ID {TaskId} not found for update", id);
-                    return NotFound("Task was not found");
+                    return NotFound();
                 }
 
                 // Validate title
@@ -208,13 +201,13 @@ namespace TaskTrackerApi.Controllers
                 // Validate and parse Priority enum
                 if (!Enum.TryParse<TaskPriority>(taskDto.Priority, true, out var priority))
                 {
-                    return BadRequest(400);
+                    return BadRequest();
                 }
 
                 // Validate DueDate if provided
                 if (taskDto.DueDate.HasValue && taskDto.DueDate.Value.Kind != DateTimeKind.Utc)
                 {
-                    return BadRequest(400);
+                    return BadRequest();
                 }
 
                 // Update properties
@@ -249,8 +242,6 @@ namespace TaskTrackerApi.Controllers
         }
 
         [HttpDelete("{id}")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<bool> DeleteTask(int id)
         {
             try
@@ -268,7 +259,7 @@ namespace TaskTrackerApi.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred while deleting task with ID {TaskId}", id);
+                _logger.LogError(ex, "Error occurred while deleting task");
                 throw;
             }
         }
